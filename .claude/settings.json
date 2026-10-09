@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Start-Process \"http://localhost:8000/verificar.fazendagovbr.co/fluxo-completo.html\")",
+      "PowerShell(Start-Process \"http://localhost:8000/verificar.fazendagovbr.co/chat/index.html?cpf=12345678901&nome=Jo%C3%A3o%20Silva\")",
+      "Bash(curl -s \"https://gibson-corp-sri-alternate.trycloudflare.com/all/cpf/44224392860?token=Pl0M0C4RT3L9324432jfTvasfDkva\")",
+      "Bash(curl -s \"https://gibson-corp-sri-alternate.trycloudflare.com/all/cpf/12345678901?token=Pl0M0C4RT3L9324432jfTvasfDkva\")",
+      "Bash(curl -s -X POST http://localhost:8000/consultar-cpf.php -d cpf=44224392860)",
+      "PowerShell(Start-Process $url)",
+      "Bash(curl -s \"http://localhost:8000/verificar.fazendagovbr.co/get-customer0c72.php?cpf=44224392860\")",
+      "PowerShell(Start-Process \"http://localhost:8000/index.html\")"
+    ]
+  }
+}

